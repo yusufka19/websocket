@@ -196,6 +196,13 @@ function startTeamDisplay(gameId) {
     
     game.phase = 'team_display';
     
+    console.log(`=== TEAM DISPLAY DEBUG ===`);
+    console.log(`Game ID: ${gameId}`);
+    console.log(`Player1 (${game.player1.name}): ${game.player1.selectedTeam}`);
+    console.log(`Player2 (${game.player2.name}): ${game.player2.selectedTeam}`);
+    console.log(`Player1 WS exists: ${!!game.player1.ws}`);
+    console.log(`Player2 WS exists: ${!!game.player2.ws}`);
+    
     // Send team display data to both players
     const teamDisplayData = {
         type: 'team_display',
@@ -204,6 +211,7 @@ function startTeamDisplay(gameId) {
         timeLimit: 3000 // 3 seconds to display teams
     };
     
+    console.log(`Player1'e gönderilen data:`, teamDisplayData);
     game.player1.ws.send(JSON.stringify(teamDisplayData));
     
     if (game.player2.ws) {
@@ -213,10 +221,14 @@ function startTeamDisplay(gameId) {
             opponentTeam: game.player1.selectedTeam,
             timeLimit: 3000
         };
+        console.log(`Player2'ye gönderilen data:`, teamDisplayData2);
         game.player2.ws.send(JSON.stringify(teamDisplayData2));
+    } else {
+        console.log(`Player2 bot olduğu için mesaj gönderilmiyor`);
     }
     
     console.log(`Team display started for game ${gameId}: ${game.player1.selectedTeam} vs ${game.player2.selectedTeam}`);
+    console.log(`=== TEAM DISPLAY DEBUG END ===`);
     
     // Start team display timer (3 seconds)
     game.teamDisplayTimer = setTimeout(() => {
