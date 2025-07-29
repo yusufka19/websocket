@@ -1,0 +1,19 @@
+{
+  "name": "football-quiz-server",
+  "version": "1.0.0",
+  "description": "WebSocket server for Football Quiz multiplayer game",
+  "main": "websocket_server.js",
+  "scripts": {
+    "start": "node websocket_server.js",
+    "dev": "node websocket_server.js"
+  },
+  "dependencies": {
+    "ws": "^8.14.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": ["websocket", "multiplayer", "football", "quiz", "game"],
+  "author": "Football Quiz Team",
+  "license": "MIT"
+}
