@@ -126,17 +126,8 @@ function startMatch(player1, player2) {
         };
         player2.ws.send(JSON.stringify(matchFoundData2));
     } else {
-        // Bot automatically selects a random team after 2-8 seconds
-        setTimeout(() => {
-            game.player2.selectedTeam = getRandomTeam();
-            console.log(`Bot selected team: ${game.player2.selectedTeam}`);
-            
-            // Check if both teams are selected
-            if (game.player1.selectedTeam && game.player2.selectedTeam) {
-                clearTimeout(game.teamSelectionTimer);
-                startTeamDisplay(gameId);
-            }
-        }, Math.random() * 6000 + 2000);
+        // Bot will select a team after user selects (to avoid same team)
+        // Bot selection is handled in handleTeamSelection function
     }
     
     console.log(`Match started: ${player1.name} vs ${player2.name} (Game: ${gameId})`);
@@ -163,6 +154,14 @@ function handleTeamSelection(ws, data) {
         team: data.team
     }));
     
+    // If this is user's selection and opponent is bot, make bot select different team
+    if (player === game.player1 && !game.player2.ws) {
+        // Bot needs to select a different team
+        const availableTeams = getAvailableTeams(data.team);
+        game.player2.selectedTeam = availableTeams[Math.floor(Math.random() * availableTeams.length)];
+        console.log(`Bot selected different team: ${game.player2.selectedTeam}`);
+    }
+    
     // If both players selected teams, start team display phase
     if (game.player1.selectedTeam && game.player2.selectedTeam) {
         clearTimeout(game.teamSelectionTimer);
@@ -179,7 +178,13 @@ function handleTeamSelectionTimeout(gameId) {
         game.player1.selectedTeam = getRandomTeam();
     }
     if (!game.player2.selectedTeam) {
-        game.player2.selectedTeam = getRandomTeam();
+        // If player2 is bot and player1 already selected, choose different team
+        if (!game.player2.ws && game.player1.selectedTeam) {
+            const availableTeams = getAvailableTeams(game.player1.selectedTeam);
+            game.player2.selectedTeam = availableTeams[Math.floor(Math.random() * availableTeams.length)];
+        } else {
+            game.player2.selectedTeam = getRandomTeam();
+        }
     }
     
     startTeamDisplay(gameId);
@@ -481,6 +486,11 @@ function getPlayerFromGame(game, ws) {
 function getRandomTeam() {
     const teams = ['Barcelona', 'Real Madrid', 'Manchester City', 'PSG', 'Bayern Munich', 'Liverpool', 'Chelsea', 'Arsenal'];
     return teams[Math.floor(Math.random() * teams.length)];
+}
+
+function getAvailableTeams(excludeTeam) {
+    const allTeams = ['Barcelona', 'Real Madrid', 'Manchester City', 'PSG', 'Bayern Munich', 'Liverpool', 'Chelsea', 'Arsenal'];
+    return allTeams.filter(team => team !== excludeTeam);
 }
 
 function getPlayersForTeam(teamName) {
